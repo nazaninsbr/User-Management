@@ -47,12 +47,6 @@ I've written a complete tutorial series for this application on The CalliCoder B
 
 	The server will start on port 5000. The spring boot app includes the front end build also, so you'll be able to access the complete application on `http://localhost:5000`.
 
-	You can also package the application in the form of a `jar` file and then run it like so -
-
-	```bash
-	mvn package
-	java -jar target/polls-0.0.1-SNAPSHOT.jar
-	```
 5. **Add the default Roles**
 	
 	The spring boot app uses role based authorization powered by spring security. Please execute the following sql queries in the database to insert the `USER` and `ADMIN` roles.
@@ -64,18 +58,154 @@ I've written a complete tutorial series for this application on The CalliCoder B
 
 	Any new user who signs up to the app is assigned the `ROLE_USER` by default.
 
-## Steps to Setup the React Front end app (polling-app-client)
-
-First go to the `polling-app-client` folder -
-
-```bash
-cd polling-app-client
-```
-
-Then type the following command to install the dependencies and start the application -
-
-```bash
-npm install && npm start
-```
-
-The front-end server will start on port `3000`.
+## The APIs
+<table style="width:100%">
+    <tr>
+      <th>URL</th>
+      <th>Method</th>
+      <th>Description</th> 
+      <th>Input Example</th>
+      <th>Response Example</th>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/auth/signup</td>
+      <td>POST</td>
+      <td>create a new user</td> 
+      <td>{<br>
+            "name": "name", <br>
+            "username": "username", <br>
+            "email": "example@example.com", <br>
+            "password": "password" <br>
+          }
+      </td>
+      <td>{<br>
+            "success": true, <br>
+            "message": "User registered successfully"<br>
+          } <br>
+          or <br>
+          {<br>
+              "success": false,<br>
+              "message": "Username is already taken!"<br>
+          }
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/auth/signin</td>
+      <td>POST</td>
+      <td>login to the website</td> 
+      <td>{<br>
+            "usernameOrEmail": "value", <br>
+            "password": "password" <br>
+          }
+      </td>
+      <td>{<br>
+            "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNTM2Mzk1ODkwLCJleHAiOjE1MzcwMDA2ODl9.xhE_xpesC8Pi6mFqNTMvUy6qiqEPpbhW20-Ky7by-CC4vwj6NNM6Bb0sB17fi1hg5xBy2yHWttGDvOh9De1d9w",<br>
+            "tokenType": "Bearer"<br>
+          }
+      </td>
+    </tr>
+     <tr>
+      <td>http://localhost:5000/leavemanagement/user/checkUsernameAvailability?username=</td>
+      <td>GET</td>
+      <td>see if the username is already taken</td> 
+      <td>
+      </td>
+      <td>{<br>
+            "available": false<br>
+          }
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/users/{username}</td>
+      <td>GET</td>
+      <td>pass in the username and remove the {} s</td> 
+      <td>
+      </td>
+      <td>{<br>
+            "id": 3,<br>
+            "username": "username",<br>
+            "name": "name",<br>
+            "joinedAt": "2018-09-08T08:28:40Z",<br>
+            "active": true<br>
+          }
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/user/checkEmailAvailability?email=</td>
+      <td>GET</td>
+      <td>see if the email is already taken</td> 
+      <td>
+      </td>
+      <td>{<br>
+            "available": true<br>
+          }
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/users/{username}/activate</td>
+      <td>PUT</td>
+      <td>deactivate the user</td> 
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/users/{username}/deactivate</td>
+      <td>PUT</td>
+      <td>activate the user</td> 
+      <td>
+      </td>
+      <td>if there is an error:<br>
+        {<br>
+          "timestamp": "2018-09-14T13:43:08.455+0000",<br>
+          "status": 404,<br>
+          "error": "Not Found",<br>
+          "message": "User not found with username : '{username}'",<br>
+          "path": "/leavemanagement/users/%7Busername%7D/deactivate"<br>
+        }
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/users/{id}/byID/activate</td>
+      <td>PUT</td>
+      <td></td> 
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/users/{id}/byID/deactivate</td>
+      <td>PUT</td>
+      <td></td> 
+      <td>
+      </td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/users/byID/{id}</td>
+      <td>GET</td>
+      <td>get user information by providing the id</td> 
+      <td>
+      </td>
+      <td>
+        {<br>
+            "id": 3,<br>
+            "username": "username",<br>
+            "name": "name",<br>
+            "joinedAt": "2018-09-08T08:28:40Z",<br>
+            "active": true<br>
+        }
+      </td>
+    </tr>
+    <tr>
+      <td>http://localhost:5000/leavemanagement/users/delete/{username}</td>
+      <td>POST</td>
+      <td>delete the user</td> 
+      <td>
+      </td>
+      <td></td>
+    </tr>
+  </table>
