@@ -33,7 +33,7 @@ import java.util.Collections;
  * Created by rajeevkumarsingh on 02/08/17.
  */
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/leavemanagement/auth")
 public class AuthController {
 
     @Autowired

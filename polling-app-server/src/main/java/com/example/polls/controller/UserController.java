@@ -2,12 +2,9 @@ package com.example.polls.controller;
 
 import com.example.polls.exception.ResourceNotFoundException;
 import com.example.polls.model.User;
-import com.example.polls.payload.*;
-import com.example.polls.repository.PollRepository;
 import com.example.polls.repository.UserRepository;
-import com.example.polls.repository.VoteRepository;
+import com.example.polls.payload.*;
 import com.example.polls.security.UserPrincipal;
-import com.example.polls.service.PollService;
 import com.example.polls.security.CurrentUser;
 import com.example.polls.util.AppConstants;
 import org.slf4j.Logger;
@@ -17,20 +14,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/leavemanagement")
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PollRepository pollRepository;
-
-    @Autowired
-    private VoteRepository voteRepository;
-
-    @Autowired
-    private PollService pollService;
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -58,29 +46,59 @@ public class UserController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
-        long pollCount = pollRepository.countByCreatedBy(user.getId());
-        long voteCount = voteRepository.countByUserId(user.getId());
-
-        UserProfile userProfile = new UserProfile(user.getId(), user.getUsername(), user.getName(), user.getCreatedAt(), pollCount, voteCount);
+        UserProfile userProfile = new UserProfile(user.getId(), user.getUsername(), user.getName(), user.getCreatedAt(), user.getActive());
 
         return userProfile;
     }
 
-    @GetMapping("/users/{username}/polls")
-    public PagedResponse<PollResponse> getPollsCreatedBy(@PathVariable(value = "username") String username,
-                                                         @CurrentUser UserPrincipal currentUser,
-                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return pollService.getPollsCreatedBy(username, currentUser, page, size);
+    @GetMapping("/users/byID/{id}")
+    public UserProfile getUserProfileById(@PathVariable(value = "id") Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        UserProfile userProfile = new UserProfile(user.getId(), user.getUsername(), user.getName(), user.getCreatedAt(), user.getActive());
+
+        return userProfile;
     }
 
-
-    @GetMapping("/users/{username}/votes")
-    public PagedResponse<PollResponse> getPollsVotedBy(@PathVariable(value = "username") String username,
-                                                       @CurrentUser UserPrincipal currentUser,
-                                                       @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                       @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return pollService.getPollsVotedBy(username, currentUser, page, size);
+    @PutMapping("/users/{username}/deactivate")
+    public void deactivateUser(@PathVariable(value = "username") String username) {
+       User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        user.deactivate();
+        userRepository.save(user);
     }
+
+    @PutMapping("/users/{username}/activate")
+    public void activateUser(@PathVariable(value = "username") String username) {
+       User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        user.activate();
+        userRepository.save(user);
+    }
+
+    @PutMapping("/users/{id}/byID/deactivate")
+    public void deactivateUserById(@PathVariable(value = "id") Long id) {
+       User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        user.deactivate();
+        userRepository.save(user);
+    }
+
+    @PutMapping("/users/{id}/byID/activate")
+    public void activateUserById(@PathVariable(value = "id") Long id) {
+       User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        user.activate();
+        userRepository.save(user);
+    }
+
+    @PostMapping("/users/delete/{username}")
+     public void deleteUser(@PathVariable(value = "username") String username) {
+       User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        userRepository.delete(user);
+    }
+
 
 }

@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Created by rajeevkumarsingh on 01/08/17.
  */
-
+// unique , user-tbl 
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = {
@@ -24,7 +24,7 @@ import java.util.Set;
 })
 public class User extends DateAudit {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotBlank
@@ -45,6 +45,8 @@ public class User extends DateAudit {
     @Size(max = 100)
     private String password;
 
+    private Boolean active;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -60,6 +62,7 @@ public class User extends DateAudit {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.active = true;
     }
 
     public Long getId() {
@@ -108,5 +111,17 @@ public class User extends DateAudit {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public Boolean getActive(){
+        return active;
+    }
+
+    public void activate(){
+        this.active = true;
+    }
+
+    public void deactivate(){
+        this.active = false;
     }
 }
